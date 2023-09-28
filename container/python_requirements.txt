@@ -1,0 +1,6 @@
+bio<=1.5.9
+mappy<=2.26
+pandas<=2.1.1
+pysam<=0.21.0
+PyVCF<=0.6.8
+scipy<=1.11.3

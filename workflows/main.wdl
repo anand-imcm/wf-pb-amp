@@ -1,33 +1,34 @@
 version 1.0
 
 workflow main {
+
+    String container_src = "pbaaenv2:latest"
+
     input {
         File reads_fastq_gz
         File guide_fasta
         File genome_ref
         String prefix
-        Int pbmm_alignment_thread = 4
-        Int pbmm_sort_thread = 4
-        Int vcfcons_min_coverage = 4
-        Float vcfcons_min_alt_freq = 0.5
     }
+
     call pbmm_index{
-        input: genome_reference = genome_ref
+        input: genome_reference = genome_ref, docker = container_src
     }
     call pbaa_cluster_var_call {
-        input : pbaa_guide_fasta = guide_fasta, genome_reference = genome_ref, amplicons_fastq_gz = reads_fastq_gz, file_label = prefix
+        input : pbaa_guide_fasta = guide_fasta, genome_reference = genome_ref, amplicons_fastq_gz = reads_fastq_gz, file_label = prefix, docker = container_src
     }
     call pbmm_alignment_metrics {
-        input: genome_reference = genome_ref, genome_index = pbmm_index.index, amplicons_fastq_gz = reads_fastq_gz, file_label = prefix, alignment_thread = pbmm_alignment_thread, sort_thread = pbmm_sort_thread
+        input: genome_reference = genome_ref, genome_index = pbmm_index.index, amplicons_fastq_gz = reads_fastq_gz, file_label = prefix, docker = container_src
     }
     call vcfcons_variants_bam {
-        input : genome_reference = genome_ref, genome_index = pbmm_index.index, bam_depth = pbmm_alignment_metrics.bam_depth_report, pbaa_vcf = pbaa_cluster_var_call.pbaa_vcf, file_label = prefix, alignment_thread = pbmm_alignment_thread, sort_thread = pbmm_sort_thread
+        input : genome_reference = genome_ref, genome_index = pbmm_index.index, bam_depth = pbmm_alignment_metrics.bam_depth_report, pbaa_vcf = pbaa_cluster_var_call.pbaa_vcf, file_label = prefix, docker = container_src
     }
 }
 
 task pbmm_index {
     input {
         File genome_reference
+        String docker
     }
 
     command <<<
@@ -36,6 +37,10 @@ task pbmm_index {
 
     output {
         File index = "ref.mmi"
+    }
+
+    runtime {
+        docker: "~{docker}"
     }
 
 
@@ -49,11 +54,9 @@ task pbaa_cluster_var_call {
         File genome_reference
         File amplicons_fastq_gz
         String file_label
+        String docker
         Int min_cluster_read_count = 2
-    }
-    
-    # m64176e_230717_161425.GBA_LU3_BC1008_Forward--GBA_LD4_BC1064_Reverse.hifi_reads.fastq.gz
-    # m64176e_230717_161425.GBA_LU3_BC1008_Forward--GBA_LD4_BC1064_Reverse.hifi_reads.fastq
+    }  
 
     String log_level = "DEBUG"
 
@@ -81,7 +84,7 @@ task pbaa_cluster_var_call {
             ~{pbaa_guide_fasta} ${fastq_inp} ~{file_label}_pbaa
 
         # convert pbaa outcome to VCF
-        python3 /home/anand/Documents/aspire-files/data-oxford/terra.bio/wf-pb-amp/scripts/consensusVariants.py \
+        python3 /scripts/consensusVariants.py \
             --runName ~{file_label}_pbaa \
             --prefix ~{file_label}_pbaa \
             --read_info ~{file_label}_pbaa_read_info.txt \
@@ -89,7 +92,7 @@ task pbaa_cluster_var_call {
             ~{genome_reference} \
             ~{file_label}_pbaa_passed_cluster_sequences.fasta > ~{file_label}_consensusVariants.log
         
-        python3 /home/anand/Documents/aspire-files/data-oxford/terra.bio/wf-pb-amp/scripts/pbaa2vcf.py \
+        python3 /scripts/pbaa2vcf.py \
             --passOnly -s barcode \
             -o ~{file_label}.vcf \
             ~{file_label}_pbaa_alleles.csv \
@@ -112,7 +115,7 @@ task pbaa_cluster_var_call {
     }
 
     runtime {
-
+        docker: "~{docker}"
     }
 }
 
@@ -124,8 +127,9 @@ task pbmm_alignment_metrics {
         File genome_index
         File amplicons_fastq_gz
         String file_label
-        Int alignment_thread
-        Int sort_thread
+        String docker
+        Int alignment_thread = 4
+        Int sort_thread = 4
     }
  
     String log_level = "DEBUG"
@@ -163,7 +167,7 @@ task pbmm_alignment_metrics {
     }
 
     runtime {
-
+        docker: "~{docker}"
     }
 }
 
@@ -176,8 +180,9 @@ task vcfcons_variants_bam {
         File bam_depth
         File pbaa_vcf
         String file_label
-        Int alignment_thread
-        Int sort_thread
+        String docker
+        Int alignment_thread = 4
+        Int sort_thread = 4
         Int min_coverage = 4
         Float min_alt_freq = 0.5
     }
@@ -186,7 +191,7 @@ task vcfcons_variants_bam {
 
     command <<<
 
-        python3 /home/anand/Documents/aspire-files/data-oxford/terra.bio/wf-pb-amp/scripts/VCFCons.py \
+        python3 /scripts/VCFCons.py \
             ~{genome_reference} ~{file_label} \
             --sample-name ~{file_label} \
             --min_coverage ~{min_coverage} \
@@ -223,10 +228,13 @@ task vcfcons_variants_bam {
     }
 
     runtime {
-
+        docker: "~{docker}"
     }
 }
 
+# to do
+# bam - alignment metrics: samtools flagstat, idxstat
+# vcf - bcftools stats
 
 # get the summary metrics
 # task summary {

@@ -1,0 +1,13 @@
+name: base
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - samtools<=1.17
+  - pbaa<=1.0.3
+  - pbmm2<=1.13.0
+  - seqkit<=2.5.1
+  - bcftools<=1.17
+  - setuptools<58
+  - gcc<=13.2.0
