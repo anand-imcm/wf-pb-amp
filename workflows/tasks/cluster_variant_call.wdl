@@ -12,6 +12,8 @@ task amplicon_analysis {
     }  
 
     String log_level = "DEBUG"
+    Int memory_mb = ceil(size(amplicons_fastq_gz, "GiB")) + 32
+    Int disk_size_gb = ceil(size(amplicons_fastq_gz, "GiB")) + 15
 
     command <<<
 
@@ -77,5 +79,9 @@ task amplicon_analysis {
 
     runtime {
         docker: "~{docker}"
+        memory: "~{memory_mb} MiB"
+        disks: "local-disk ~{disk_size_gb} HDD"
+        returnCodes: "*"
+        continueOnReturnCode: true
     }
 }

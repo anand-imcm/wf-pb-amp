@@ -16,6 +16,8 @@ task consensus_variant_calling {
     }
     
     String log_level = "DEBUG"
+    Int memory_mb = ceil(size(genome_index, "GiB")) + 32
+    Int disk_size_gb = ceil(size(genome_index, "GiB")) + 15
 
     command <<<
 
@@ -57,5 +59,9 @@ task consensus_variant_calling {
 
     runtime {
         docker: "~{docker}"
+        memory: "~{memory_mb} MiB"
+        disks: "local-disk ~{disk_size_gb} HDD"
+        returnCodes: "*"
+        continueOnReturnCode: true
     }
 }
