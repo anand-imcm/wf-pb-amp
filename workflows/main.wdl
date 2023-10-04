@@ -4,7 +4,7 @@ import "./tasks/alignment_and_metrics.wdl" as reads_to_bam
 import "./tasks/consensus_vcf_and_metrics.wdl" as call_variants
 
 workflow main {
-    
+
     String pipeline_version = "1.0.0"
     String container_src = "pbaaenv2:latest"
 
@@ -14,6 +14,14 @@ workflow main {
         File genome_ref
         File genome_index_pbmm
         String prefix
+    }
+
+    parameter_meta {
+        reads_fastq_gz : "Input PacBio HiFi reads in fastq.gz format."
+        guide_fasta : "Amplicon reference FASTA file. This reference file is used for pbAA clustering."
+        genome_ref : "Human reference genome FASTA file."
+        genome_index_pbmm : "Reference index generated through pbmm2 in .mmi format."
+        prefix : "Sample name. This will be used as prefix to all the output files."
     }
 
     call cluster_to_vcf.amplicon_analysis {
@@ -57,4 +65,11 @@ workflow main {
         File consensus_reference_aligned_bam = consensus_variant_calling.consensus_reference_aligned_bam
         File consensus_reference_alignment_log = consensus_variant_calling.consensus_reference_alignment_log
     }
+
+    meta {
+        description: "A WDL-based workflow for Variant calling using PacBio HiFi CCS data."
+        author: "Anand Maurya"
+        email: "anand.maurya@well.ox.ac.uk"
+    }
+
 }
