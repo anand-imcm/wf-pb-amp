@@ -1,5 +1,8 @@
 # wf-pb-amp : A WDL-based workflow for Variant calling using PacBio HiFi CCS data.
 
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/anand-imcm/wf-pb-amp/publish.yml)
+![GitHub release (with filter)](https://img.shields.io/github/v/release/anand-imcm/wf-pb-amp)
+
 Import the workflow to your Terra workspace using the link below.
 
 - [Dockstore](https://dockstore.org/workflows/github.com/anand-imcm/wf-pb-amp:main?tab=info)
