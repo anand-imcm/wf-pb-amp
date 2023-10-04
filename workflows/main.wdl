@@ -6,7 +6,7 @@ import "./tasks/consensus_vcf_and_metrics.wdl" as call_variants
 workflow main {
 
     String pipeline_version = "1.0.0"
-    String container_src = "pbaaenv2:latest"
+    String container_src = "ghcr.io/anand-imcm/wf-pb-amp:~{pipeline_version}"
 
     input {
         File reads_fastq_gz
