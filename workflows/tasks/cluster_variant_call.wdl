@@ -51,6 +51,11 @@ task amplicon_analysis {
             ~{file_label}_pbaa_alleles.csv \
             ~{file_label}_pbaa_variants.csv \
             ~{genome_reference} > ~{file_label}_pbaa2vcf.log
+        
+
+        seqkit stats -a -T ${fastq_inp} > ~{file_label}_fastq_seq_stats.tab
+        seqkit stats -a -T ~{file_label}_pbaa_passed_cluster_sequences.fasta > ~{file_label}_pbaa_passed_cluster_sequences_stats.tab
+        seqkit stats -a -T ~{file_label}_pbaa_failed_cluster_sequences.fasta > ~{file_label}_pbaa_failed_cluster_sequences_stats.tab
     >>>
 
     output {
@@ -61,6 +66,9 @@ task amplicon_analysis {
         File pbaa_alleles = file_label + "_pbaa_alleles.csv"
         File pbaa_variants = file_label + "_pbaa_variants.csv"
         File pbaa_vcf = file_label + ".vcf"
+        File fastq_seq_stats = file_label + "_fastq_seq_stats.tab"
+        File pbaa_passed_cluster_sequences_stats = file_label + "_pbaa_passed_cluster_sequences_stats.tab"
+        File pbaa_failed_cluster_sequences_stats = file_label + "_pbaa_failed_cluster_sequences_stats.tab"
     }
 
     parameter_meta {

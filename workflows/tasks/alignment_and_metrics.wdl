@@ -17,6 +17,10 @@ task alignment_metrics {
 
     command <<<
         
+        # initial quality check
+        fastqc ~{amplicons_fastq_gz} -o .
+        rm *_fastqc.html
+
         # align to reference genome and sort the output
         pbmm2 align \
         --log-level ~{log_level} \
@@ -34,13 +38,22 @@ task alignment_metrics {
         samtools depth \
             -q 0 -Q 0 \
             ~{file_label}_aligned_sorted.bam > ~{file_label}_aligned_sorted.bam.depth
+        
+        samtools flagstat \
+            ~{file_label}_aligned_sorted.bam >  ~{file_label}_aligned_final_sorted.flagstat
+
+        samtools idxstat \
+            ~{file_label}_aligned_sorted.bam >  ~{file_label}_aligned_final_sorted.idxstat
     >>>
 
     output {
+        File fastqc_report = file_label + "_fastqc.zip"
         File aligned_sorted_bam = file_label + "_aligned_sorted.bam"
         File aligned_amplicon_cluster_log = file_label + "_aligned_amplicon_cluster.log"
         File bam_mpileup_report = file_label + "_aligned_sorted.bam.mpileup"
         File bam_depth_report = file_label + "_aligned_sorted.bam.depth"
+        File flagstat_report = file_label + "_aligned_final_sorted.flagstat"
+        File idxstat_report = file_label + "_aligned_final_sorted.idxstat"
     }
 
     parameter_meta {

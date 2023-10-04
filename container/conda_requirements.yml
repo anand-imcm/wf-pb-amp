@@ -11,3 +11,4 @@ dependencies:
   - bcftools<=1.17
   - setuptools<58
   - gcc<=13.2.0
+  - fastqc<=0.12.1
