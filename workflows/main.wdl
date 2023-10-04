@@ -17,11 +17,11 @@ workflow main {
     }
 
     parameter_meta {
-        reads_fastq_gz : "Input PacBio HiFi reads in fastq.gz format."
-        guide_fasta : "Amplicon reference FASTA file. This reference file is used for pbAA clustering."
-        genome_ref : "Human reference genome FASTA file."
+        reads_fastq_gz : "Input PacBio HiFi reads in .fastq.gz format."
+        guide_fasta : "Amplicon reference .fasta file. This reference file is used for pbAA clustering."
+        genome_ref : "Human reference genome .fasta file."
         genome_index_pbmm : "Reference index generated through pbmm2 in .mmi format."
-        prefix : "Sample name. This will be used as prefix to all the output files."
+        prefix : "Sample name. This will be used as prefix for all the output files."
     }
 
     call cluster_to_vcf.amplicon_analysis {
