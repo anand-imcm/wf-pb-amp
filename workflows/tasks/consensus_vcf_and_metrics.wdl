@@ -28,7 +28,7 @@ task consensus_variant_calling {
         samtools faidx genome_reference.fasta -o genome_reference.fasta.fai
         
         python3 /scripts/VCFCons.py \
-            genome_reference.fasta ~{file_label} \
+            ~{genome_reference} ~{file_label} \
             --sample-name ~{file_label} \
             --min_coverage ~{min_coverage} \
             --min_alt_freq ~{min_alt_freq} \
