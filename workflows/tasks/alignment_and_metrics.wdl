@@ -18,6 +18,12 @@ task alignment_metrics {
     Int disk_size_gb = ceil(size(amplicons_fastq_gz, "GiB")) + 15
 
     command <<<
+
+        ln -s ~{genome_reference} genome_reference.fasta
+
+        ln -s ~{genome_index} genome_reference.fasta.mmi
+        
+        samtools faidx genome_reference.fasta -o genome_reference.fasta.fai
         
         # initial quality check
         fastqc ~{amplicons_fastq_gz} -o .
@@ -29,12 +35,12 @@ task alignment_metrics {
         --log-file ~{file_label}_aligned_amplicon_cluster.log \
         --sort -j ~{alignment_thread} -J ~{sort_thread} \
         --preset HIFI \
-        ~{genome_reference} ~{amplicons_fastq_gz} ~{file_label}_aligned_sorted.bam
+        genome_reference.fasta ~{amplicons_fastq_gz} ~{file_label}_aligned_sorted.bam
 
         # Get coverage metrics
         samtools mpileup \
             --min-BQ 1 \
-            -f ~{genome_reference} \
+            -f genome_reference.fasta \
             -s ~{file_label}_aligned_sorted.bam > ~{file_label}_aligned_sorted.bam.mpileup
 
         samtools depth \

@@ -20,12 +20,16 @@ task amplicon_analysis {
         set -euo pipefail
         
         fastq_gz_inp=~{file_label}.fastq.gz # replace ".fastq.gz" with ".hifi_reads.fastq.gz"
-        
-        fastq_inp=~{file_label}.fastq # .hifi_reads.fastq
 
-        samtools faidx ~{pbaa_guide_fasta}
+        fastq_inp=~{file_label}.fastq # .reads.fastq .hifi_reads.fastq
 
-        samtools faidx ~{genome_reference}
+        ln -s ~{pbaa_guide_fasta} pbaa_guide.fasta
+
+        ln -s ~{genome_reference} genome_reference.fasta
+
+        samtools faidx pbaa_guide.fasta -o pbaa_guide.fasta.fai
+
+        samtools faidx genome_reference.fasta -o genome_reference.fasta.fai
 
         gunzip -c ~{amplicons_fastq_gz} > $fastq_inp
 
@@ -36,7 +40,7 @@ task amplicon_analysis {
             --log-file ~{file_label}_pbaa.log \
             --trim-ends 5 \
             --min-cluster-read-count ~{min_cluster_read_count} \
-            ~{pbaa_guide_fasta} ${fastq_inp} ~{file_label}_pbaa
+            pbaa_guide.fasta ${fastq_inp} ~{file_label}_pbaa
 
         # convert pbaa outcome to VCF
         python3 /scripts/consensusVariants.py \
@@ -44,7 +48,7 @@ task amplicon_analysis {
             --prefix ~{file_label}_pbaa \
             --read_info ~{file_label}_pbaa_read_info.txt \
             --hifiSupport ${fastq_inp} \
-            ~{genome_reference} \
+            genome_reference.fasta \
             ~{file_label}_pbaa_passed_cluster_sequences.fasta > ~{file_label}_consensusVariants.log
         
         python3 /scripts/pbaa2vcf.py \
@@ -52,7 +56,7 @@ task amplicon_analysis {
             -o ~{file_label}.vcf \
             ~{file_label}_pbaa_alleles.csv \
             ~{file_label}_pbaa_variants.csv \
-            ~{genome_reference} > ~{file_label}_pbaa2vcf.log
+            genome_reference.fasta > ~{file_label}_pbaa2vcf.log
         
 
         seqkit stats -a -T ${fastq_inp} > ~{file_label}_fastq_seq_stats.tab

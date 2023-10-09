@@ -21,8 +21,14 @@ task consensus_variant_calling {
 
     command <<<
 
+        ln -s ~{genome_reference} genome_reference.fasta
+
+        ln -s ~{genome_index} genome_reference.fasta.mmi
+
+        samtools faidx genome_reference.fasta -o genome_reference.fasta.fai
+        
         python3 /scripts/VCFCons.py \
-            ~{genome_reference} ~{file_label} \
+            genome_reference.fasta ~{file_label} \
             --sample-name ~{file_label} \
             --min_coverage ~{min_coverage} \
             --min_alt_freq ~{min_alt_freq} \
@@ -36,7 +42,7 @@ task consensus_variant_calling {
             --log-file ~{file_label}_consensus_reference_alignment.log \
             --sort -j ~{alignment_thread} -J ~{sort_thread} \
             --preset HIFI \
-            ~{genome_reference} ~{file_label}.vcfcons.frag.fasta \
+            genome_reference.fasta ~{file_label}.vcfcons.frag.fasta \
             ~{file_label}_vcfcons_aligned_sorted.bam
     >>>
 
