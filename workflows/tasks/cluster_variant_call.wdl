@@ -12,8 +12,8 @@ task amplicon_analysis {
     }  
 
     String log_level = "DEBUG"
-    Int memory_mb = ceil(size(amplicons_fastq_gz, "GiB")) + 32
-    Int disk_size_gb = ceil(size(amplicons_fastq_gz, "GiB")) + 20
+    # Int memory_mb = ceil(size(amplicons_fastq_gz, "GiB")) + 32
+    # Int disk_size_gb = ceil(size(amplicons_fastq_gz, "GiB")) + 20
 
     command <<<
 
