@@ -22,8 +22,6 @@ task alignment_metrics {
         ln -s ~{genome_reference} genome_reference.fasta
 
         ln -s ~{genome_index} genome_reference.fasta.mmi
-
-        ln -s ~{genome_index} genome_reference.fasta.mmi
         
         samtools faidx genome_reference.fasta -o genome_reference.fasta.fai
         
