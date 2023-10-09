@@ -19,9 +19,9 @@ task amplicon_analysis {
 
         set -euo pipefail
         
-        fastq_gz_inp=~{file_label}.fastq.gz # replace ".fastq.gz" with ".hifi_reads.fastq.gz"
+        fastq_gz_inp=~{file_label}.hifi_reads.fastq.gz # replace ".fastq.gz" with ".hifi_reads.fastq.gz"
 
-        fastq_inp=~{file_label}.fastq # .reads.fastq .hifi_reads.fastq
+        fastq_inp=~{file_label}.hifi_reads.fastq # .reads.fastq .hifi_reads.fastq
 
         ln -s ~{pbaa_guide_fasta} pbaa_guide.fasta
 
