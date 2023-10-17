@@ -1,7 +1,7 @@
 version 1.0
 
 # cluster hifi reads using pbAA
-task cluster {
+task clusterReads {
     
     input {
         File guide_seq
@@ -23,18 +23,20 @@ task cluster {
         samtools faidx pbaa_guide.fasta -o pbaa_guide.fasta.fai
 
         gunzip -c ~{hifi_reads_fastq_gz} > ${hifireads_file_base}.fastq
+
+        mv ${hifireads_file_base}.fastq ~{file_label}.hifi_reads.fastq
         
-        samtools faidx --fastq ${hifireads_file_base}.fastq
+        samtools faidx --fastq ~{file_label}.hifi_reads.fastq
         
         pbaa cluster --min-cluster-frequency ~{min_cluster_frequency} \
             --max-amplicon-size ~{max_amplicon_size} \
             pbaa_guide.fasta \
-            ${hifireads_file_base}.fastq \
+            ~{file_label}.hifi_reads.fastq \
             ~{file_label}_pbaa \
             --log-level ~{log_level} \
             --log-file ~{file_label}_pbaa_cluster.log
         
-        seqkit stats -a -T ${hifireads_file_base}.fastq > ~{file_label}_fastq_seq_stats.tab
+        seqkit stats -a -T ~{file_label}.hifi_reads.fastq > ~{file_label}_fastq_seq_stats.tab
         
         seqkit stats -a -T ~{file_label}_pbaa_passed_cluster_sequences.fasta > ~{file_label}_pbaa_passed_cluster_sequences_stats.tab
         
@@ -49,5 +51,7 @@ task cluster {
         File fastq_seq_stats = file_label + "_fastq_seq_stats.tab"
         File pbaa_passed_cluster_sequences_stats = file_label + "_pbaa_passed_cluster_sequences_stats.tab"
         File pbaa_failed_cluster_sequences_stats = file_label + "_pbaa_failed_cluster_sequences_stats.tab"
+        File hifi_reads_fastq = file_label + ".hifi_reads.fastq"
+        File hifi_reads_fastq_index = file_label + ".hifi_reads.fastq.fai"
     }
 }

@@ -1,7 +1,7 @@
 version 1.0
 
 # align 
-task varcall {
+task variantCall {
     
     input {
         File consensus_to_ref_aligned_bam

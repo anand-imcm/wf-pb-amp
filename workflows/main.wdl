@@ -1,8 +1,10 @@
 version 1.0
 
 import "./tasks/cluster_sequences.wdl" as generate_consensus
-import "./tasks/align_concensus.wdl" as align_consensus
+import "./tasks/align_concensus.wdl" as align_consensus_reads
 import "./tasks/call_variants.wdl" as variant_stats
+import "./tasks/extract_reads.wdl" as extract
+import "./tasks/align_hifi_cluster.wdl" as align_clustered_reads
 
 workflow main {
 
@@ -28,28 +30,25 @@ workflow main {
         prefix : "Sample name. This will be used as prefix for all the output files."
     }
 
-    call generate_consensus.cluster {
+    call generate_consensus.clusterReads {
         input: guide_seq = guide_fasta, hifi_reads_fastq_gz = reads_fastq_gz, file_label = prefix
     }
 
-    call align_consensus.align {
-        input: genome_reference= genome_ref, pbmm2_index = genome_index_pbmm, passed_cluster_seq = cluster.pbaa_passed_cluster_sequences, file_label = prefix
+    call align_consensus_reads.alignConsensus {
+        input: genome_reference = genome_ref, pbmm2_index = genome_index_pbmm, passed_cluster_seq = clusterReads.pbaa_passed_cluster_sequences, file_label = prefix
     }
 
-    call variant_stats.varcall {
-        input: consensus_to_ref_aligned_bam = align.consensus_to_reference_alignment_bam, genome_reference = genome_ref, clinvar = clinvar_vcf, gff = features_gff, bed = target_bed, file_label = prefix
+    call variant_stats.variantCall {
+        input: consensus_to_ref_aligned_bam = alignConsensus.consensus_to_reference_alignment_bam, genome_reference = genome_ref, clinvar = clinvar_vcf, gff = features_gff, bed = target_bed, file_label = prefix
     }
-    # call cluster_to_vcf.amplicon_analysis {
-    #     input : pbaa_guide_fasta = guide_fasta, genome_reference = genome_ref, amplicons_fastq_gz = reads_fastq_gz, file_label = prefix, docker = container_src
-    # }
 
-    # call reads_to_bam.alignment_metrics {
-    #     input: genome_reference = genome_ref, genome_index = genome_index_pbmm, amplicons_fastq_gz = reads_fastq_gz, file_label = prefix, docker = container_src
-    # }
+    call extract.extractClusteredHifiReads {
+        input: hifi_fastq = clusterReads.hifi_reads_fastq, hifi_fastq_index = clusterReads.hifi_reads_fastq_index, pbaa_read_info = clusterReads.pbaa_read_info, file_label = prefix
+    }
 
-    # call call_variants.consensus_variant_calling {
-    #     input : genome_reference = genome_ref, genome_index = genome_index_pbmm, bam_depth = alignment_metrics.bam_depth_report, pbaa_vcf = amplicon_analysis.pbaa_vcf, file_label = prefix, docker = container_src
-    # }
+    call align_clustered_reads.alignClusteredHifiReads {
+        input: genome_reference= genome_ref, pbmm2_index = genome_index_pbmm, clustered_hifi_reads = extractClusteredHifiReads.clustered_hifi_fastq, pbaa_read_info = clusterReads.pbaa_read_info, file_label = prefix
+    }
 
     # output {
     #     File pbaa_passed_cluster_sequences = amplicon_analysis.pbaa_passed_cluster_sequences

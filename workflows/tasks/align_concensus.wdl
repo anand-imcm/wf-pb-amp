@@ -1,7 +1,7 @@
 version 1.0
 
-# align 
-task align {
+# align consensus reads to reference
+task alignConsensus {
     
     input {
         File genome_reference
