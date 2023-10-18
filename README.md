@@ -31,17 +31,17 @@ This pipeline is based on the amplicon analysis outlined in the Official PacBio 
 
 ## Inputs
 
-- `reads_fastq_gz` : "Input PacBio HiFi reads in .fastq.gz format."
-- `guide_fasta` : "Amplicon reference .fasta file. This reference file is used for pbAA clustering."
-- `genome_ref` : "Human reference genome .fasta file."
-- `genome_index_pbmm` : "Reference index generated through pbmm2 in .mmi format."
-- `clinvar_vcf` : "Clinvar vcf for annotation in .gz format."
-- `features_gff` : "Reference geneome annotation in .gff3.gz format."
-- `target_bed` : "Coordinates for the amplified regions (target) in .bed format."
-- `lima_report` : "Lima report file obtained from the demultiplexing process in .lima.report format."     
-- `prefix` : "Sample name. This will be used as prefix for all the output files."
-- `max_amplicon_size`": "Int (optional, default = 20000)",
-- `min_cluster_frequency`": "Float (optional, default = 0.125)"
+- `reads_fastq_gz` : Input PacBio HiFi reads in .fastq.gz format. "File"
+- `guide_fasta` : Amplicon reference .fasta file. This reference file is used for pbAA clustering. "File"
+- `genome_ref` : Human reference genome .fasta format. "File"
+- `genome_index_pbmm` : Reference index generated through pbmm2 in .mmi format. "File"
+- `clinvar_vcf` : Clinvar vcf for annotation in .gz format. "File"
+- `features_gff` : Reference geneome annotation in .gff3.gz format. "File"
+- `target_bed` : Coordinates for the amplified regions (target) in .bed format. "File"
+- `lima_report` : Lima report file obtained from the demultiplexing process in .lima.report format. "File"
+- `prefix` : Sample name. This will be used as prefix for all the output files. "String"
+- `max_amplicon_size` : `pbaa cluster` filter option. "Int (optional, default = 20000)"
+- `min_cluster_frequency` : `pbaa cluster` filter option. "Float (optional, default = 0.125)"
 
 
 ## Output
