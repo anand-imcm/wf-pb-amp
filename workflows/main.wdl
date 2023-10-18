@@ -9,8 +9,8 @@ import "./tasks/cluster_barcode_qc.wdl" as cluster_qc
 
 workflow main {
 
-    # String pipeline_version = "1.2.0"
-    String container_src = "featstats:latest"
+    String pipeline_version = "1.2.0"
+    String container_src = "ghcr.io/anand-imcm/wf-pb-amp:latest:~{pipeline_version}"
 
     input {
         File reads_fastq_gz
