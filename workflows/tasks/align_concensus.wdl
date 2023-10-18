@@ -47,5 +47,7 @@ task alignConsensus {
     
     runtime {
         docker: "~{docker}"
+        memory: "16G"
+        disks: "local-disk 16 HDD"
     }
 }
