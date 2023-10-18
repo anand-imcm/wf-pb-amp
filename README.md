@@ -14,80 +14,75 @@ Locate the 'Launch with' widget at the top right of the Dockstore workflow page,
 
 A WDL-based workflow that takes PacBio HiFi reads as input and runs PacBio Amplicon Analysis under the hood.
 
-The steps and commands for running the amplicon analysis implemented in this workflow are outlined in the Official PacBio Github [Wiki page](https://github.com/PacificBiosciences/CoSA/wiki/Variant-calling-using-PacBio-HiFi-CCS-data#4c-variant-calling-using-pbaa)
+This pipeline is based on the amplicon analysis outlined in the Official PacBio GitHub [hifi-amplicon-workflow](https://github.com/PacificBiosciences/hifi-amplicon-workflow), which is originally a Snakemake-based workflow. Our implementation is based on WDL (Workflow Description Language) and includes some customizations to meet the specific requirements of our data.
 
 
-## WDL tasks
+## Workflow steps
 
-- `cluster_to_vcf` [__Task 1__]  Variant calling using [pbaa](https://github.com/PacificBiosciences/pbAA) tool. `pbaa` accepts an input fastq and a guide reference, and outputs a cluster sequence. It runs additional scripts to convert the cluster sequence to VCF format which is used by `VCFCons` tool later in the workflow.
-- `reads_to_bam`  [__Task 2__] Aligning HiFi reads to the reference and generate the alignment and coverage summary.
-- `call_variants` [__Task 3__] The final task to generate the VCF file after removing low qual variants.
+- Cluster hifi reads with [pbaa](https://github.com/PacificBiosciences/pbAA) tool.
+- Align cluster consensus to the reference.
+- Call variants per cluster.
+- Annotate variants per cluster and generate a summary.
+- Extract the hifi reads based on pbaa clusters.
+- Align the clustered hifi reads to the reference.
+- Color-code BAM records, after aligning the clustered hifi reads.
+- Generate the cluster qc report using the lima summary records.
 
 
 ## Inputs
 
-- `reads_fastq_gz` : Input PacBio HiFi reads in .fastq.gz format. ["File (required)"]
-- `guide_fasta` : Amplicon reference .fasta file. This reference file is used for pbAA clustering. ["File (required)"]
-- `genome_ref` : Reference genome .fasta file. ["File (required)"]
-- `genome_index_pbmm` : Reference genome index file generated through pbmm2 in .mmi format. ["File (required)"]
-- `prefix` : Sample name. This will be used as prefix for all the output files ["String (required)"]
-- `consensus_variant_calling.min_alt_freq` : ["Float (optional, default = 0.5)"]
-- `consensus_variant_calling.sort_thread` : ["Int (optional, default = 4)"]
-- `consensus_variant_calling.min_coverage` : ["Int (optional, default = 4)"]
-- `consensus_variant_calling.alignment_thread` : ["Int (optional, default = 4)"]
-- `alignment_metrics.sort_thread` : ["Int (optional, default = 4)"]
-- `alignment_metrics.alignment_thread` : ["Int (optional, default = 4)"]
-- `amplicon_analysis.min_cluster_read_count` : ["Int (optional, default = 2)"]
+- `reads_fastq_gz` : "Input PacBio HiFi reads in .fastq.gz format."
+- `guide_fasta` : "Amplicon reference .fasta file. This reference file is used for pbAA clustering."
+- `genome_ref` : "Human reference genome .fasta file."
+- `genome_index_pbmm` : "Reference index generated through pbmm2 in .mmi format."
+- `clinvar_vcf` : "Clinvar vcf for annotation in .gz format."
+- `features_gff` : "Reference geneome annotation in .gff3.gz format."
+- `target_bed` : "Coordinates for the amplified regions (target) in .bed format."
+- `lima_report` : "Lima report file obtained from the demultiplexing process in .lima.report format."     
+- `prefix` : "Sample name. This will be used as prefix for all the output files."
+- `max_amplicon_size`": "Int (optional, default = 20000)",
+- `min_cluster_frequency`": "Float (optional, default = 0.125)"
 
 
 ## Output
 
-- `pbaa_passed_cluster_sequences`
+- `fastq_seq_stats`
 - `pbaa_failed_cluster_sequences`
+- `pbaa_failed_cluster_sequences_stats`
+- `pbaa_passed_cluster_sequences`
+- `pbaa_passed_cluster_sequences_stats`
 - `pbaa_read_info`
 - `pbaa_run_log`
-- `pbaa_alleles`
-- `pbaa_variants`
-- `pbaa_vcf`
-- `fastq_seq_stats`
-- `pbaa_passed_cluster_sequences_stats`
-- `pbaa_failed_cluster_sequences_stats`
-- `fastqc_report`
-- `aligned_sorted_bam`
-- `aligned_amplicon_cluster_log`
-- `bam_mpileup_report`
-- `bam_depth_report`
-- `flagstat_report`
-- `idxstat_report`
-- `vcfcons_fasta`
-- `vcfcons_frag_fasta`
-- `vcfcons_info`
-- `vcfcons_vcf`
-- `vcfcons_csv`
-- `vcfcons_log`
-- `consensus_reference_aligned_bam`
-- `consensus_reference_alignment_log`
+- `consensus_to_reference_alignment_bam`
+- `consensus_to_reference_alignment_flagstat`
+- `consensus_to_reference_alignment_idxstat`
+- `consensus_to_reference_alignment_log`
+- `raw_vcf`
+- `annotated_vcf`
+- `variant_summary`
+- `variant_on_target_summary`
+- `clustered_hifi_fastq`
+- `clustered_hifi_reads_fastq_stats`
+- `clustered_hifi_to_reference_alignment_painted_bam`
+- `clustered_hifi_to_reference_alignment_painted_bam_index`
+- `clustered_hifi_to_reference_alignment_painted_idxstat`
+- `clustered_hifi_to_reference_alignment_painted_flagstat`
+- `clustered_hifi_to_reference_alignment_bampaint_log`
+- `clustered_hifi_to_reference_alignment_log`
+- `clusterQC_report`
 
 
 ## Components
-- Scripts from `cosa-py3` package extracted from `smrttools-release_12.0.0.177059` bundle
-  - consensusVariants.py
-  - parser.py
-  - pbaa2vcf.py
-  - VCFCons.py
+
 - Python packages
-  - bio<=1.5.9
-  - mappy<=2.26
   - pandas<=2.1.1
   - pysam<=0.21.0
-  - PyVCF<=0.6.8
-  - scipy<=1.11.3
 - Tools
-  - samtools<=1.17
+  - bcftools<=1.18
+  - bedtools<=2.31.0
+  - bzip2<=1.0.8
   - pbaa<=1.0.3
   - pbmm2<=1.13.0
+  - samtools<=1.18
   - seqkit<=2.5.1
-  - bcftools<=1.17
-  - setuptools<58
-  - gcc<=13.2.0
-  - fastqc<=0.12.1
+  - seqtk<=1.4
