@@ -4,12 +4,13 @@ import os, pysam, argparse
 import pandas as pd
 
 parser = argparse.ArgumentParser(prog='variant_call.py', description='Call variants per concensus')
-parser.add_argument('-i','--inbam',type=str, help='pbaa consensus to reference aligned bam')
-parser.add_argument('-r','--ref',type=str, help='Genome reference fasta (must be indexed)')
-parser.add_argument('-c','--clinvar',type=str, help='Clinvar vcf')
-parser.add_argument('-g','--gff',type=str, help='Consequence gff')
-parser.add_argument('-t','--target',type=str, help='Target region coordinates in bed format')
-parser.add_argument('-p','--prefix',type=str, help='Output variant summary from all clusters in tsv format')
+parser.add_argument('-i','--inbam',type=str, help='pbaa consensus to reference aligned bam', required=True)
+parser.add_argument('-r','--ref',type=str, help='Genome reference fasta (must be indexed)', required=True)
+parser.add_argument('-c','--clinvar',type=str, help='Clinvar vcf', required=True)
+parser.add_argument('-g','--gff',type=str, help='Consequence gff', required=True)
+parser.add_argument('-t','--target',type=str, help='Target region coordinates in bed format', required=True)
+parser.add_argument('-p','--prefix',type=str, help='Output variant summary from all clusters in tsv format', required=True)
+
 args = parser.parse_args()
 
 tsvs_all_variants=[]

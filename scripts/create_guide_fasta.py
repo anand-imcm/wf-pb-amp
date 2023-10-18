@@ -1,9 +1,11 @@
+#! python3
+
 import pysam, argparse
 
 parser = argparse.ArgumentParser(prog='create_guide_fasta.py', description='Create guide reference fasta')
-parser.add_argument('-r','--ref',type=str, help='Genome reference fasta')
-parser.add_argument('-t','--target',type=str, help='Target region coordinates in bed format')
-parser.add_argument('-o','--out',type=str, help='Output guide reference fasta file name')
+parser.add_argument('-r','--ref',type=str, help='Genome reference fasta', required=True)
+parser.add_argument('-t','--target',type=str, help='Target region coordinates in bed format', required=True)
+parser.add_argument('-o','--out',type=str, help='Output guide reference fasta file name', required=True)
 
 args = parser.parse_args()
 

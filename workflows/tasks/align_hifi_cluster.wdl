@@ -9,6 +9,7 @@ task alignClusteredHifiReads {
         File clustered_hifi_reads
         File pbaa_read_info
         String file_label
+        String docker
     }  
 
     String log_level = "DEBUG"
@@ -55,5 +56,9 @@ task alignClusteredHifiReads {
         File clustered_hifi_to_reference_alignment_painted_flagstat = file_label + "_clustered_hifi_to_reference_alignment_painted_flagstat.txt"
         File clustered_hifi_to_reference_alignment_painted_idxstat = file_label + "_clustered_hifi_to_reference_alignment_painted_idxstat.txt"
         File clustered_hifi_reads_fastq_stats = file_label + "_clustered_hifi_reads_fastq_stats.tab"
+    }
+
+    runtime {
+        docker: "~{docker}"
     }
 }

@@ -9,6 +9,7 @@ task clusterReads {
         String file_label
         Int max_amplicon_size = 20000
         Float min_cluster_frequency = 0.125
+        String docker
     }  
 
     String log_level = "DEBUG"
@@ -53,5 +54,9 @@ task clusterReads {
         File pbaa_failed_cluster_sequences_stats = file_label + "_pbaa_failed_cluster_sequences_stats.tab"
         File hifi_reads_fastq = file_label + ".hifi_reads.fastq"
         File hifi_reads_fastq_index = file_label + ".hifi_reads.fastq.fai"
+    }
+
+    runtime {
+        docker: "~{docker}"
     }
 }

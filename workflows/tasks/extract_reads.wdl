@@ -1,6 +1,6 @@
 version 1.0
 
-# extract hifi reads from cluster
+# extract hifi reads from cluster read info
 task extractClusteredHifiReads {
     
     input {
@@ -8,6 +8,7 @@ task extractClusteredHifiReads {
         File hifi_fastq_index
         File pbaa_read_info
         String file_label
+        String docker
     }
 
     command <<<
@@ -25,5 +26,9 @@ task extractClusteredHifiReads {
     output {
         File clustered_holes = file_label + "_clustered_holes.txt"
         File clustered_hifi_fastq = file_label + "_clustered_hifi_reads.fastq"
+    }
+
+    runtime {
+        docker: "~{docker}"
     }
 }

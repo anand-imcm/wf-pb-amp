@@ -1,17 +1,15 @@
-FROM mambaorg/micromamba:1.4.2
+FROM mambaorg/micromamba:1.5.1
 
-COPY --chown=$MAMBA_USER:$MAMBA_USER ./container/*_requirements.* /tmp/
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./container/environment.yml /tmp/
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER ./scripts /scripts
 
-RUN micromamba install -y -n base -f /tmp/conda_requirements.yml && \
+RUN micromamba install -y -n base -f /tmp/environment.yml && \
     micromamba clean --all --yes
 
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
-RUN pip install -r /tmp/python_requirements.txt
-
-RUN python /scripts/fix_py_vcf_parser.py
+RUN pip3 install "pandas<=2.1.1" "pysam<=0.22.0"
 
 # adding the path to the tools managed by mamba
 ENV PATH="/opt/conda/bin:$PATH"

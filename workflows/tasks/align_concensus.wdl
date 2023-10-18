@@ -8,6 +8,7 @@ task alignConsensus {
         File pbmm2_index
         File passed_cluster_seq
         String file_label
+        String docker
     }  
 
     String log_level = "DEBUG"
@@ -42,5 +43,9 @@ task alignConsensus {
         File consensus_to_reference_alignment_log = file_label + "_consensus_to_reference_alignment.log"
         File consensus_to_reference_alignment_flagstat = file_label + "_consensus_to_reference_alignment_flagstat.txt"
         File consensus_to_reference_alignment_idxstat = file_label + "_consensus_to_reference_alignment_idxstat.txt"
+    }
+    
+    runtime {
+        docker: "~{docker}"
     }
 }

@@ -1,6 +1,6 @@
 version 1.0
 
-# align 
+# call variants using the consensus to reference aligned bam
 task variantCall {
     
     input {
@@ -10,6 +10,7 @@ task variantCall {
         File gff
         File bed
         String file_label
+        String docker
     } 
 
     command <<<
@@ -35,5 +36,9 @@ task variantCall {
         File variant_on_target_summary = file_label + "_variant_on_target_summary.tsv"
         Array[File] annotated_vcf = glob("*_annotated.vcf.gz")
         Array[File] raw_vcf = glob("*_raw.vcf.gz")
+    }
+
+    runtime {
+        docker: "~{docker}"
     }
 }
