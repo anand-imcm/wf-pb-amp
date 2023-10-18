@@ -93,7 +93,7 @@ workflow main {
     }
 
     meta {
-        description: "A WDL-based workflow for Variant calling using PacBio HiFi CCS data."
+        description: "A WDL-based workflow for Variant calling and annotation using PacBio HiFi reads."
         author: "Anand Maurya"
         email: "anand.maurya@well.ox.ac.uk"
     }

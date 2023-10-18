@@ -14,7 +14,7 @@ task clusterMetrics {
     command <<<
         grep -f <(cut -d/ -f1,2 ~{clustered_holes}) ~{lima_report} > ~{file_label}_clusters.barcode.report
         
-        python /home/anand/Documents/aspire-files/data-oxford/terra.bio/wf-pb-amp/scripts/cluster_qc_summary.py \
+        python /scripts/cluster_qc_summary.py \
             --readinfo ~{pbaa_read_info} \
             --demuxreport ~{file_label}_clusters.barcode.report \
             --prefix ~{file_label}

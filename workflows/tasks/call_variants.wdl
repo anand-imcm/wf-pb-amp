@@ -22,7 +22,7 @@ task variantCall {
         
         tabix -p vcf clinvar.vcf.gz
         
-        python /home/anand/Documents/aspire-files/data-oxford/terra.bio/wf-pb-amp/scripts/variant_call.py \
+        python /scripts/variant_call.py \
             --inbam ~{consensus_to_ref_aligned_bam} \
             --ref genome_reference.fasta \
             --clinvar clinvar.vcf.gz \
