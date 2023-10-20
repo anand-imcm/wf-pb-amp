@@ -9,7 +9,7 @@ import "./tasks/cluster_barcode_qc.wdl" as cluster_qc
 
 workflow main {
 
-    String pipeline_version = "1.2.0"
+    String pipeline_version = "1.2.1"
     String container_src = "ghcr.io/anand-imcm/wf-pb-amp:~{pipeline_version}"
 
     input {
@@ -45,7 +45,7 @@ workflow main {
     }
 
     call variant_stats.variantCall {
-        input: consensus_to_ref_aligned_bam = alignConsensus.consensus_to_reference_alignment_bam, genome_reference = genome_ref, clinvar = clinvar_vcf, gff = features_gff, bed = target_bed, file_label = prefix, docker = container_src
+        input: consensus_to_ref_aligned_bam = alignConsensus.consensus_to_reference_alignment_bam, consensus_to_ref_aligned_bam_index = alignConsensus.consensus_to_reference_alignment_bam_idx, genome_reference = genome_ref, clinvar = clinvar_vcf, gff = features_gff, bed = target_bed, file_label = prefix, docker = container_src
     }
 
     call extract.extractClusteredHifiReads {

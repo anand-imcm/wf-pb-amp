@@ -40,6 +40,7 @@ task alignConsensus {
 
     output {
         File consensus_to_reference_alignment_bam = file_label + "_consensus_to_reference_alignment.bam"
+        File consensus_to_reference_alignment_bam_idx = file_label + "_consensus_to_reference_alignment.bam.bai"
         File consensus_to_reference_alignment_log = file_label + "_consensus_to_reference_alignment.log"
         File consensus_to_reference_alignment_flagstat = file_label + "_consensus_to_reference_alignment_flagstat.txt"
         File consensus_to_reference_alignment_idxstat = file_label + "_consensus_to_reference_alignment_idxstat.txt"

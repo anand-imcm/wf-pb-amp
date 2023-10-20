@@ -5,6 +5,7 @@ task variantCall {
     
     input {
         File consensus_to_ref_aligned_bam
+        File consensus_to_ref_aligned_bam_index
         File genome_reference
         File clinvar
         File gff
@@ -18,12 +19,15 @@ task variantCall {
 
         ln -s ~{clinvar} clinvar.vcf.gz
 
+        ln -s ~{consensus_to_ref_aligned_bam} ~{file_label}_consensus_to_ref_aligned.bam
+        ln -s ~{consensus_to_ref_aligned_bam_index} ~{file_label}_consensus_to_ref_aligned.bam.bai
+
         samtools faidx genome_reference.fasta -o genome_reference.fasta.fai
         
         tabix -p vcf clinvar.vcf.gz
         
         python /scripts/variant_call.py \
-            --inbam ~{consensus_to_ref_aligned_bam} \
+            --inbam ~{file_label}_consensus_to_ref_aligned.bam \
             --ref genome_reference.fasta \
             --clinvar clinvar.vcf.gz \
             --gff ~{gff} \
