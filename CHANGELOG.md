@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2023-10-23
+
+### Added
+- New modules for variant calling using [`deepvariant`](https://github.com/google/deepvariant).
+- Added a summary of variant calls using total and ontarget variant.
+
 ## [1.2.0] - 2023-10-18
 
 ### Added
