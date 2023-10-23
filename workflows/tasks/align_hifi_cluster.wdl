@@ -27,6 +27,7 @@ task alignClusteredHifiReads {
             ~{genome_reference} \
             ~{clustered_hifi_reads} \
             ~{file_label}_clustered_hifi_to_reference_alignment.bam \
+            --rg "@RG\tID:~{file_label}\tSM:~{file_label}" \
             --log-level ~{log_level} \
             --log-file ~{file_label}_clustered_hifi_to_reference_alignment.log
         

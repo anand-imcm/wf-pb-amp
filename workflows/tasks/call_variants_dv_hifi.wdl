@@ -1,7 +1,7 @@
 version 1.0
 
-# align clustered hifi reads to reference and generate the final bam using pbaa bampaint
-task HifiReadsVarCall {
+# call variants using Google deep variant
+task HifiReadsVarCallDV {
     
     input {
         File raw_hifi_to_reference_alignment_bam
@@ -40,17 +40,29 @@ task HifiReadsVarCall {
             --input_vcf ~{file_label}_raw_hifi_to_reference_alignment_all_variants.vcf.gz \
             --outfile_base ~{file_label}
         
-        bcftools annotate -c ID,INFO -a clinvar.vcf.gz ~{file_label}_raw_hifi_to_reference_alignment_all_variants.vcf.gz | bcftools csq -f genome_reference.fasta -g ~{gff} | bcftools view -Ov -o ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz
+        bcftools annotate -c ID,INFO -a clinvar.vcf.gz ~{file_label}_raw_hifi_to_reference_alignment_all_variants.vcf.gz | bcftools csq -f genome_reference.fasta -g ~{gff} | bcftools view -Oz -o ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz
 
-        bcftools query -Hu -f "%CHROM\t%POS\t%ID\t%REF\t%ALT\t[%SAMPLE\t%INFO/BCSQ]\n" ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz > ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated_summary.tsv
+        tabix -p vcf ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz
 
+        bcftools query -Hu -f "%CHROM\t%POS\t%ID\t%REF\t%ALT\t[%SAMPLE\t%INFO/BCSQ\t%GT:%GQ:%DP:%AD:%VAF:%PL:%BCSQ]\n" ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz > ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated_summary.tsv
+
+        bcftools view -f PASS ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz -Oz -o ~{file_label}_raw_hifi_to_reference_alignment_pass_variants_annotated.vcf.gz
+
+        bcftools query -Hu -f "%CHROM\t%POS\t%ID\t%REF\t%ALT\t[%SAMPLE\t%INFO/BCSQ\t%GT:%GQ:%DP:%AD:%VAF:%PL:%BCSQ]\n" ~{file_label}_raw_hifi_to_reference_alignment_pass_variants_annotated.vcf.gz > ~{file_label}_raw_hifi_to_reference_alignment_pass_variants_annotated_summary.tsv
+        
+        modified_header=$(head -n1 ~{file_label}_raw_hifi_to_reference_alignment_pass_variants_annotated_summary.tsv | sed 's/\[[0-9]*\]//g; s/#//')
+        
+        # replacing the header infile
+        sed -i "1s/.*/$modified_header/" ~{file_label}_raw_hifi_to_reference_alignment_pass_variants_annotated_summary.tsv
     >>>
 
     output {
         File raw_hifi_to_reference_alignment_all_variants_vcf = file_label + "_raw_hifi_to_reference_alignment_all_variants.vcf.gz"
         File raw_hifi_to_reference_alignment_all_variants_annotated_vcf = file_label + "_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz"
-        File raw_hifi_to_reference_alignment_all_variants_stats = file_label + ".visual_report.html"
         File raw_hifi_to_reference_alignment_all_variants_annotated_summary = file_label + "_raw_hifi_to_reference_alignment_all_variants_annotated_summary.tsv"
+        File raw_hifi_to_reference_alignment_pass_variants_annotated_vcf = file_label + "_raw_hifi_to_reference_alignment_pass_variants_annotated.vcf.gz"
+        File raw_hifi_to_reference_alignment_pass_variants_annotated_summary = file_label + "_raw_hifi_to_reference_alignment_pass_variants_annotated_summary.tsv"
+        File raw_hifi_to_reference_alignment_all_variants_stats = file_label + ".visual_report.html"
     }
 
     runtime {

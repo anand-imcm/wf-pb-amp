@@ -26,6 +26,7 @@ task alignConsensus {
             ~{genome_reference} \
             ~{passed_cluster_seq} \
             ~{file_label}_consensus_to_reference_alignment.bam \
+            --rg "@RG\tID:~{file_label}\tSM:~{file_label}" \
             --log-level ~{log_level} \
             --log-file ~{file_label}_consensus_to_reference_alignment.log
         

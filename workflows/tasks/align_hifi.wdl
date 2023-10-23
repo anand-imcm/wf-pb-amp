@@ -31,6 +31,7 @@ task HifiReadsAlign {
             genome_reference.mmi \
             ~{file_label}.hifi_reads.fastq \
             ~{file_label}_raw_hifi_to_reference_alignment.bam \
+            --rg "@RG\tID:~{file_label}\tSM:~{file_label}" \
             --log-level ~{log_level} \
             --log-file ~{file_label}_raw_hifi_to_reference_alignment.log
         
