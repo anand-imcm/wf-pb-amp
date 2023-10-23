@@ -50,7 +50,7 @@ This pipeline is based on the amplicon analysis outlined in the Official PacBio 
 
 ## Output
 
-- FastqQC report
+- Input Fastq stats
   - `fastq_seq_stats`
 - `pbaa` cluster results
   - `pbaa_failed_cluster_sequences`
