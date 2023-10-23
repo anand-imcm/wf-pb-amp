@@ -32,7 +32,8 @@ with pysam.AlignmentFile(args.inbam) as inbam:
                 pysam.index(obam)
                 with open('temp_header.txt', 'w') as temp_header_file:
                     temp_header_file.write(rec.query_name)
-                os.system(f'bcftools mpileup -f {args.ref} {obam} | bcftools call -mv -Oz -o {vcf}')
+                os.system(f'/opt/deepvariant/bin/run_deepvariant --model_type PACBIO --ref {args.ref} --reads {obam} --output_vcf {vcf}')
+                os.system(f'/opt/deepvariant/bin/vcf_stats_report --input_vcf {vcf} --outfile_base {rec.query_name}')
                 os.system(f'tabix -p vcf {vcf}')
                 os.system(f'bcftools annotate -c ID,INFO -a {args.clinvar} {vcf} | bcftools csq -f {args.ref} -g {args.gff} | bcftools reheader -s temp_header.txt | bcftools view -Ov -o {vcf_annotated}')
                 os.system(f'bcftools query -Hu -f "%CHROM\t%POS\t%ID\t%REF\t%ALT\t[%SAMPLE\t%INFO/BCSQ]\n" {vcf_annotated} > {variants_tsv}')
@@ -44,12 +45,11 @@ with pysam.AlignmentFile(args.inbam) as inbam:
         else :
             print(f"Skipping: {args.prefix}. The total number of mapped alignments is 0")
 
-
 patt = 'sample-(?P<Sample>.*)_guide-(?P<Target>.*)_cluster-(?P<Cluster>[0-9]+)_ReadCount-(?P<Numreads>[0-9]+)'
 
 def read_tsv( tsv ):
     tbl = pd.read_csv( tsv, sep='\t' )
-    if not tbl.empty:
+    if tbl:
         tbl.columns = tbl.columns.str.replace( '^.*\\]', '', regex=True ).str.split(':').str[-1]
         if tbl.empty:
             tbl.loc[0] = {'SAMPLE' : tsv, 'CHROM': 'NoVariants'}
@@ -61,19 +61,19 @@ def read_tsv( tsv ):
         res = res.reindex([ 'Sample','Target','Cluster','Numreads','CHROM','POS','ID','REF','ALT','BCSQ'], axis=1)
         return res
 
-if not tsvs_all_variants :
-    pd.DataFrame(columns=['Sample','Target','Cluster','Numreads','CHROM','POS','ID','REF','ALT','BCSQ'])\
-    .fillna('.')\
-    .to_csv(tsvs_all_variants_summary, sep="\t", index=False)
-
-    pd.DataFrame(columns=['Sample','Target','Cluster','Numreads','CHROM','POS','ID','REF','ALT','BCSQ'])\
-    .fillna('.')\
-    .to_csv(tsvs_on_target_summary, sep="\t", index=False)
-else :
+if tsvs_all_variants:
     pd.concat( map( read_tsv, tsvs_all_variants ), axis=0 )\
     .fillna('.')\
     .to_csv(tsvs_all_variants_summary, sep="\t", index=False)
 
     pd.concat( map( read_tsv, tsvs_on_target ), axis=0 )\
+    .fillna('.')\
+    .to_csv(tsvs_on_target_summary, sep="\t", index=False)
+else:
+    pd.DataFrame(columns=['Sample','Target','Cluster','Numreads','CHROM','POS','ID','REF','ALT','BCSQ'])\
+    .fillna('.')\
+    .to_csv(tsvs_all_variants_summary, sep="\t", index=False)
+
+    pd.DataFrame(columns=['Sample','Target','Cluster','Numreads','CHROM','POS','ID','REF','ALT','BCSQ'])\
     .fillna('.')\
     .to_csv(tsvs_on_target_summary, sep="\t", index=False)

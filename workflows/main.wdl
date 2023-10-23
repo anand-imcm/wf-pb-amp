@@ -6,6 +6,8 @@ import "./tasks/call_variants.wdl" as variant_stats
 import "./tasks/extract_reads.wdl" as extract
 import "./tasks/align_hifi_cluster.wdl" as align_clustered_reads
 import "./tasks/cluster_barcode_qc.wdl" as cluster_qc
+import "./tasks/align_hifi.wdl" as align_hifi_reads
+import "./tasks/call_variants_dv_hifi.wdl" as hifi_reads_variant_call_dv
 
 workflow main {
 
@@ -60,6 +62,14 @@ workflow main {
         input: clustered_holes = extractClusteredHifiReads.clustered_holes, lima_report = lima_report, pbaa_read_info = clusterReads.pbaa_read_info, file_label = prefix, docker = container_src
     }
 
+    call align_hifi_reads.HifiReadsAlign {
+        input: hifi_reads_fastq_gz = reads_fastq_gz, pbmm2_index = genome_index_pbmm, file_label = prefix, docker = container_src
+    }
+
+    call hifi_reads_variant_call_dv.HifiReadsVarCall {
+        input: raw_hifi_to_reference_alignment_bam = HifiReadsAlign.raw_hifi_to_reference_alignment_bam, raw_hifi_to_reference_alignment_index = HifiReadsAlign.raw_hifi_to_reference_alignment_index, genome_reference = genome_ref, clinvar = clinvar_vcf, gff = features_gff, file_label = prefix
+    }
+
     output {
         File fastq_seq_stats = clusterReads.fastq_seq_stats
         File pbaa_failed_cluster_sequences = clusterReads.pbaa_failed_cluster_sequences
@@ -90,6 +100,18 @@ workflow main {
         File clustered_hifi_to_reference_alignment_log = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_log
 
         File clusterQC_report = clusterMetrics.clusterQC_report
+
+        File raw_hifi_to_reference_alignment_bam = HifiReadsAlign.raw_hifi_to_reference_alignment_bam
+        File raw_hifi_to_reference_alignment_index = HifiReadsAlign.raw_hifi_to_reference_alignment_index
+        File raw_hifi_to_reference_alignment_log = HifiReadsAlign.raw_hifi_to_reference_alignment_log
+        File raw_hifi_to_reference_alignment_flagstat = HifiReadsAlign.raw_hifi_to_reference_alignment_flagstat
+        File raw_hifi_to_reference_alignment_idxstat = HifiReadsAlign.raw_hifi_to_reference_alignment_idxstat
+        File raw_hifi_reads_fastq_stats = HifiReadsAlign.raw_hifi_reads_fastq_stats
+
+        File raw_hifi_to_reference_alignment_all_variants_vcf = HifiReadsVarCall.raw_hifi_to_reference_alignment_all_variants_vcf
+        File raw_hifi_to_reference_alignment_all_variants_annotated_vcf = HifiReadsVarCall.raw_hifi_to_reference_alignment_all_variants_annotated_vcf
+        File raw_hifi_to_reference_alignment_all_variants_stats = HifiReadsVarCall.raw_hifi_to_reference_alignment_all_variants_stats
+        File raw_hifi_to_reference_alignment_all_variants_annotated_summary = HifiReadsVarCall.raw_hifi_to_reference_alignment_all_variants_annotated_summary
     }
 
     meta {

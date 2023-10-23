@@ -13,3 +13,4 @@ dependencies:
 - samtools<=1.18
 - seqkit<=2.5.1
 - seqtk<=1.4
+- fastqc<=0.12.1
