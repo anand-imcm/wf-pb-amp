@@ -46,6 +46,11 @@ task HifiReadsVarCallDV {
 
         bcftools query -Hu -f "%CHROM\t%POS\t%ID\t%REF\t%ALT\t[%SAMPLE\t%INFO/BCSQ\t%GT:%GQ:%DP:%AD:%VAF:%PL:%BCSQ]\n" ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz > ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated_summary.tsv
 
+        modified_header_all_vars=$(head -n1 ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated_summary.tsv | sed 's/\[[0-9]*\]//g; s/#//')
+        
+        # replacing the header infile
+        sed -i "1s/.*/$modified_header_all_vars/" ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated_summary.tsv
+
         bcftools view -f PASS ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz -Oz -o ~{file_label}_raw_hifi_to_reference_alignment_pass_variants_annotated.vcf.gz
 
         bcftools query -Hu -f "%CHROM\t%POS\t%ID\t%REF\t%ALT\t[%SAMPLE\t%INFO/BCSQ\t%GT:%GQ:%DP:%AD:%VAF:%PL:%BCSQ]\n" ~{file_label}_raw_hifi_to_reference_alignment_pass_variants_annotated.vcf.gz > ~{file_label}_raw_hifi_to_reference_alignment_pass_variants_annotated_summary.tsv

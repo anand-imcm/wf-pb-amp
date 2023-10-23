@@ -26,7 +26,7 @@ task variantCall {
         
         tabix -p vcf clinvar.vcf.gz
         
-        python /home/anand/Documents/aspire-files/data-oxford/terra.bio/wf-pb-amp/scripts/variant_call.py \
+        python /scripts/variant_call.py \
             --inbam ~{file_label}_consensus_to_ref_aligned.bam \
             --ref genome_reference.fasta \
             --clinvar clinvar.vcf.gz \
@@ -43,7 +43,7 @@ task variantCall {
     }
 
     runtime {
-        # docker: "~{docker}"
+        docker: "~{docker}"
         memory: "32G"
         disks: "local-disk 30 HDD"
     }
