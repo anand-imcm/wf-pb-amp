@@ -12,7 +12,7 @@ import "./tasks/ontarget_variants_dv_hifi.wdl" as hifi_reads_ontarget_vars_dv
 
 workflow main {
 
-    String pipeline_version = "1.3.2"
+    String pipeline_version = "1.3.3"
     String container_src = "ghcr.io/anand-imcm/wf-pb-amp:~{pipeline_version}"
 
     input {
@@ -97,11 +97,11 @@ workflow main {
         File clustered_hifi_fastq = extractClusteredHifiReads.clustered_hifi_fastq
 
         File clustered_hifi_reads_fastq_stats = alignClusteredHifiReads.clustered_hifi_reads_fastq_stats
-        File clustered_hifi_to_reference_alignment_painted_bam = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_painted_bam
-        File clustered_hifi_to_reference_alignment_painted_bam_index = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_painted_bam_index
+        File? clustered_hifi_to_reference_alignment_painted_bam = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_painted_bam
+        File? clustered_hifi_to_reference_alignment_painted_bam_index = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_painted_bam_index
         File clustered_hifi_to_reference_alignment_painted_idxstat = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_painted_idxstat
         File clustered_hifi_to_reference_alignment_painted_flagstat = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_painted_flagstat
-        File clustered_hifi_to_reference_alignment_bampaint_log = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_bampaint_log
+        File? clustered_hifi_to_reference_alignment_bampaint_log = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_bampaint_log
         File clustered_hifi_to_reference_alignment_log = alignClusteredHifiReads.clustered_hifi_to_reference_alignment_log
 
         File clusterQC_report = clusterMetrics.clusterQC_report

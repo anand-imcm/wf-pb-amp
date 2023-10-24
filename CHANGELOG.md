@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.3] - 2023-10-24
+
+### Fixed
+- pbaa bampaint issue -> `ERROR -|- BamPainterRunner -|- 0x7f8bce5ab740|| -|- No reads tagged` . It results in an exit code of 1, leading to the workflow being marked as failed.
+- pbaa bampaint output is made optional since the input bam files may have no reads.
+
 ## [1.3.2] - 2023-10-24
 
 ### Fixed
