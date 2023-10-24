@@ -34,7 +34,7 @@ with pysam.AlignmentFile(args.inbam) as inbam:
                     temp_header_file.write(rec.query_name)
                 os.system(f'bcftools mpileup -f {args.ref} {obam} | bcftools call -mv -Oz -o {vcf}')
                 os.system(f'tabix -p vcf {vcf}')
-                os.system(f'bcftools annotate -c ID,INFO -a {args.clinvar} {vcf} | bcftools csq -f {args.ref} -g {args.gff} | bcftools reheader -s temp_header.txt | bcftools view -Oz -o {vcf_annotated}')
+                os.system(f'bcftools annotate -c ID,INFO -a {args.clinvar} {vcf} | bcftools csq -p a -f {args.ref} -g {args.gff} | bcftools reheader -s temp_header.txt | bcftools view -Oz -o {vcf_annotated}')
                 os.system(f'bcftools query -Hu -f "%CHROM\t%POS\t%ID\t%REF\t%ALT\t[%SAMPLE\t%INFO/BCSQ]\n" {vcf_annotated} > {variants_tsv}')
                 os.system(f'bedtools intersect -header -a {vcf_annotated} -b {args.target} -wa | bgzip -c > {variants_ontarget}')
                 os.system(f'tabix -p vcf {variants_ontarget}')

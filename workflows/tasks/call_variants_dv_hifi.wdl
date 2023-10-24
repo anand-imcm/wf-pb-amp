@@ -40,7 +40,7 @@ task HifiReadsVarCallDV {
             --input_vcf ~{file_label}_raw_hifi_to_reference_alignment_all_variants.vcf.gz \
             --outfile_base ~{file_label}
         
-        bcftools annotate -c ID,INFO -a clinvar.vcf.gz ~{file_label}_raw_hifi_to_reference_alignment_all_variants.vcf.gz | bcftools csq -f genome_reference.fasta -g ~{gff} | bcftools view -Oz -o ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz
+        bcftools annotate -c ID,INFO -a clinvar.vcf.gz ~{file_label}_raw_hifi_to_reference_alignment_all_variants.vcf.gz | bcftools csq -p a -f genome_reference.fasta -g ~{gff} | bcftools view -Oz -o ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz
 
         tabix -p vcf ~{file_label}_raw_hifi_to_reference_alignment_all_variants_annotated.vcf.gz
 
