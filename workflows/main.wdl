@@ -12,7 +12,7 @@ import "./tasks/ontarget_variants_dv_hifi.wdl" as hifi_reads_ontarget_vars_dv
 
 workflow main {
 
-    String pipeline_version = "1.3.1"
+    String pipeline_version = "1.3.2"
     String container_src = "ghcr.io/anand-imcm/wf-pb-amp:~{pipeline_version}"
 
     input {

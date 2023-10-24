@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 2023-10-24
+
+### Fixed
+- Bcftools annotation issue by adding a flag to process the GTs as is, create haplotypes regardless of their phase. 
+
 ## [1.3.1] - 2023-10-23
 
 ### Added
