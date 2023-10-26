@@ -52,7 +52,7 @@ my ($count_snp,$count_indel,$count_ontarget_vars,$count_ontarget_snp,$count_onta
 
 open (SEQ,">$sequence_summary") or die("Cannot write to - $sequence_summary");
 print SEQ "file\tfastq_num_seqs\tfastq_sum_len\tfastq_min_len\tfastq_avg_len\tfastq_max_len\tfastq_Q1\tfastq_Q2\tfastq_Q3\tfastq_sum_gap\tfastq_N50\tfastq_Q20(%)\tfastq_Q30(%)\tfastq_GC(%)\tpbaa_passed_num_seq\tpbaa_failed_num_seq\ttotal_variants\ttotal_snps\ttotal_indels\ttotal_ontarget_variants\ttotal_ontarget_snps\ttotal_ontarget_indels\n";
-print SEQ "$fastq_stats{'file'}\t$fastq_stats{'num_seqs'}\t$fastq_stats{'sum_len'}\t$fastq_stats{'min_len'}\t$fastq_stats{'avg_len'}\t$fastq_stats{'max_len'}\t$fastq_stats{'Q1'}\t$fastq_stats{'Q2'}\t$fastq_stats{'Q3'}\t$fastq_stats{'sum_gap'}\t$fastq_stats{'N50'}\t$fastq_stats{'Q20%'}\t$fastq_stats{'Q30%'}\t$fastq_stats{'GC%'}\t$passed_cluster_stats{'num_seqs'}\t$failed_cluster_stats{'num_seqs'}\t".scalar @variants_tab."\t$count_snp\t$count_indel\t$count_ontarget_vars\t$count_ontarget_snp\t$count_ontarget_indel\n";
+print SEQ "$prefix\t$fastq_stats{'num_seqs'}\t$fastq_stats{'sum_len'}\t$fastq_stats{'min_len'}\t$fastq_stats{'avg_len'}\t$fastq_stats{'max_len'}\t$fastq_stats{'Q1'}\t$fastq_stats{'Q2'}\t$fastq_stats{'Q3'}\t$fastq_stats{'sum_gap'}\t$fastq_stats{'N50'}\t$fastq_stats{'Q20%'}\t$fastq_stats{'Q30%'}\t$fastq_stats{'GC%'}\t$passed_cluster_stats{'num_seqs'}\t$failed_cluster_stats{'num_seqs'}\t".scalar @variants_tab."\t$count_snp\t$count_indel\t$count_ontarget_vars\t$count_ontarget_snp\t$count_ontarget_indel\n";
 close SEQ;
 
 open (TMP,">temp.summary.tsv") or die("Cannot write to - temp.summary.tsv");

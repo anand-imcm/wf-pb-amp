@@ -9,10 +9,11 @@ import "./tasks/cluster_barcode_qc.wdl" as cluster_qc
 import "./tasks/align_hifi.wdl" as align_hifi_reads
 import "./tasks/call_variants_dv_hifi.wdl" as hifi_reads_variant_call_dv
 import "./tasks/ontarget_variants_dv_hifi.wdl" as hifi_reads_ontarget_vars_dv
+import "./tasks/generate_summary.wdl" as generate_summary
 
 workflow main {
 
-    String pipeline_version = "1.3.3"
+    String pipeline_version = "1.3.4"
     String container_src = "ghcr.io/anand-imcm/wf-pb-amp:~{pipeline_version}"
 
     input {
@@ -75,6 +76,10 @@ workflow main {
         input: raw_hifi_to_reference_alignment_pass_variants_annotated_vcf = HifiReadsVarCallDV.raw_hifi_to_reference_alignment_pass_variants_annotated_vcf, bed = target_bed, file_label = prefix, docker = container_src
     }
 
+    call generate_summary.report {
+        input: fastq_seq_stats = clusterReads.fastq_seq_stats, pbaa_passed_cluster_sequences_stats = clusterReads.pbaa_passed_cluster_sequences_stats, pbaa_failed_cluster_sequences_stats = clusterReads.pbaa_failed_cluster_sequences_stats, clusterQC_report = clusterMetrics.clusterQC_report, variant_summary = variantCall.variant_summary, variant_on_target_summary = variantCall.variant_on_target_summary, raw_hifi_reads_fastq_stats = HifiReadsAlign.raw_hifi_reads_fastq_stats, raw_hifi_to_reference_alignment_idxstat = HifiReadsAlign.raw_hifi_to_reference_alignment_idxstat, raw_hifi_to_reference_alignment_pass_variants_annotated_summary = HifiReadsVarCallDV.raw_hifi_to_reference_alignment_pass_variants_annotated_summary, raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_summary = HifiOnTargetVarsDV.raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_summary, file_label = prefix, docker = container_src
+    }
+
     output {
         File fastq_seq_stats = clusterReads.fastq_seq_stats
         File pbaa_failed_cluster_sequences = clusterReads.pbaa_failed_cluster_sequences
@@ -120,6 +125,11 @@ workflow main {
 
         File raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_vcf = HifiOnTargetVarsDV.raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_vcf
         File raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_summary = HifiOnTargetVarsDV.raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_summary
+        
+        File pbaa_sequence_summary = report.pbaa_sequence_summary
+        File pbaa_unique_variant_summary = report.pbaa_unique_variant_summary
+        File germline_sequence_summary = report.germline_sequence_summary
+        File germline_unique_variant_summary = report.germline_unique_variant_summary
     }
 
     meta {

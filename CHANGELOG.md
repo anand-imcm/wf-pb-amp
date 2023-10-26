@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.3.4] - 2023-10-26
+
+### Added
+- New task to generate summary:
+  - sequence level summary for amplicon and germline methods
+  - variant summary for amplicon and germline variant calls
 
 ## [1.3.3] - 2023-10-24
 
