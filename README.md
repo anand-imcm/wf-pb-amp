@@ -96,6 +96,11 @@ This pipeline is based on the amplicon analysis outlined in the Official PacBio 
   - `raw_hifi_to_reference_alignment_all_variants_stats`
   - `raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_vcf`
   - `raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_summary`
+- Summary
+  - `pbaa_sequence_summary`
+  - `pbaa_unique_variant_summary`
+  - `germline_sequence_summary`
+  - `germline_unique_variant_summary`
 
 
 ## Components
