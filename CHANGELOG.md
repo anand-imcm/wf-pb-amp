@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [1.3.5] - 2023-11-01
+
+### Fixed
+- Alignment metrics from pbmm2 log file
+
 ## [1.3.4] - 2023-10-26
 
 ### Added

@@ -7,7 +7,7 @@ use Sys::Hostname;
 use File::Basename;
 
 my $fastq_seqkit_stats = '';
-my $bam_idx_stats = '';
+my $pbmm2_log = '';
 my $dv_variants_summ = '';
 my $dv_ontarget_variants_summ = '';
 my $prefix = '';
@@ -16,19 +16,19 @@ my $help = '';
 
 # GetOptions ('verbose' => \$verbose, 'all' => \$all);
 GetOptions ('fastq=s' => \$fastq_seqkit_stats,
-            'idxstat=s' => \$bam_idx_stats,
+            'pbmmlog=s' => \$pbmm2_log,
             'allVariants=s' => \$dv_variants_summ,
             'onTargetVariants=s' => \$dv_ontarget_variants_summ,
             'prefix=s' => \$prefix,
 			'help'  => \$help
 			);
 
-if (!$fastq_seqkit_stats || !$dv_variants_summ || !$dv_ontarget_variants_summ || !$prefix){
+if (!$fastq_seqkit_stats || !$pbmm2_log || !$dv_variants_summ || !$dv_ontarget_variants_summ || !$prefix){
     $help = 1;
 }
 
 if ($help) {
-    print "Usage:\nperl scripts/deepvariant_report.pl --fastq hifi_reads-3_raw_hifi_reads_fastq_stats.tab --idxstat hifi_reads-3_raw_hifi_to_reference_alignment_idxstat.txt --allVariants hifi_reads-3_raw_hifi_to_reference_alignment_pass_variants_annotated_summary.tsv --onTargetVariants hifi_reads-3_raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_summary.tsv --prefix test\n";
+    print "Usage:\nperl scripts/deepvariant_report.pl --fastq hifi_reads-3_raw_hifi_reads_fastq_stats.tab --pbmmlog hifi_reads-3_raw_hifi_to_reference_alignment.log --allVariants hifi_reads-3_raw_hifi_to_reference_alignment_pass_variants_annotated_summary.tsv --onTargetVariants hifi_reads-3_raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_summary.tsv --prefix test\n";
 	exit;
 }
 
@@ -39,14 +39,21 @@ my $sequence_summary=$prefix."_germline_workflow_sequence_summary.tsv";
 # #keys : {"file","format","type","num_seqs","sum_len","min_len","avg_len","max_len","Q1","Q2","Q3","sum_gap","N50","Q20%","Q30%","GC%"}
 my %fastq_stats = parse_seqkit($fastq_seqkit_stats);
 
-# #keys {'ref_contig','ref_contig_len','total_unmapped_reads','total_mapped_reads'};
-my %bam_stats = parse_idxstat($bam_idx_stats);
+my $total_mapped_reads = parse_pbmm2log($pbmm2_log);
+
+my $alignment_perc = 0;
+
+my $total_unmapped_reads = $fastq_stats{'num_seqs'} - $total_mapped_reads;
 
 my ($count_snp,$count_indel,$count_ontarget_vars,$count_ontarget_snp,$count_ontarget_indel,@variants_tab) = parse_dv_variants($dv_variants_summ,$dv_ontarget_variants_summ);
 
+if ($total_mapped_reads != 0){
+    $alignment_perc = sprintf("%.2f",($total_mapped_reads/$fastq_stats{'num_seqs'})*100);
+}
+
 open (SEQ,">$sequence_summary") or die("Cannot write to - $sequence_summary");
-print SEQ "file\tfastq_num_seqs\tfastq_sum_len\tfastq_min_len\tfastq_avg_len\tfastq_max_len\tfastq_Q1\tfastq_Q2\tfastq_Q3\tfastq_sum_gap\tfastq_N50\tfastq_Q20(%)\tfastq_Q30(%)\tfastq_GC(%)\ttotal_mapped_reads\ttotal_unmapped_reads\ttotal_variants\ttotal_snps\ttotal_indels\ttotal_ontarget_variants\ttotal_ontarget_snps\ttotal_ontarget_indels\n";
-print SEQ "$prefix\t$fastq_stats{'num_seqs'}\t$fastq_stats{'sum_len'}\t$fastq_stats{'min_len'}\t$fastq_stats{'avg_len'}\t$fastq_stats{'max_len'}\t$fastq_stats{'Q1'}\t$fastq_stats{'Q2'}\t$fastq_stats{'Q3'}\t$fastq_stats{'sum_gap'}\t$fastq_stats{'N50'}\t$fastq_stats{'Q20%'}\t$fastq_stats{'Q30%'}\t$fastq_stats{'GC%'}\t$bam_stats{'total_mapped_reads'}\t$bam_stats{'total_unmapped_reads'}\t".scalar @variants_tab."\t$count_snp\t$count_indel\t$count_ontarget_vars\t$count_ontarget_snp\t$count_ontarget_indel\n";
+print SEQ "file\tfastq_num_seqs\tfastq_sum_len\tfastq_min_len\tfastq_avg_len\tfastq_max_len\tfastq_Q1\tfastq_Q2\tfastq_Q3\tfastq_sum_gap\tfastq_N50\tfastq_Q20(%)\tfastq_Q30(%)\tfastq_GC(%)\ttotal_mapped_reads\ttotal_unmapped_reads\ttotal_alignment%\ttotal_variants\ttotal_snps\ttotal_indels\ttotal_ontarget_variants\ttotal_ontarget_snps\ttotal_ontarget_indels\n";
+print SEQ "$prefix\t$fastq_stats{'num_seqs'}\t$fastq_stats{'sum_len'}\t$fastq_stats{'min_len'}\t$fastq_stats{'avg_len'}\t$fastq_stats{'max_len'}\t$fastq_stats{'Q1'}\t$fastq_stats{'Q2'}\t$fastq_stats{'Q3'}\t$fastq_stats{'sum_gap'}\t$fastq_stats{'N50'}\t$fastq_stats{'Q20%'}\t$fastq_stats{'Q30%'}\t$fastq_stats{'GC%'}\t$total_mapped_reads\t$total_unmapped_reads\t$alignment_perc\t".scalar @variants_tab."\t$count_snp\t$count_indel\t$count_ontarget_vars\t$count_ontarget_snp\t$count_ontarget_indel\n";
 close SEQ;
 
 open (TMP,">temp.summary.tsv") or die("Cannot write to - temp.summary.tsv");
@@ -131,21 +138,14 @@ sub parse_dv_variants {
     return($count_snp,$count_indel,$count_ontarget_vars,$count_ontarget_snp,$count_ontarget_indel,@variants);
 }
 
-sub parse_idxstat {
-    my ($tsv) = (@_);
-    my %stats;
-    open (TAB,"$tsv") or die("Cannot read table - $tsv: $!");
-    my $header = <TAB>; chomp $header;
-	my @idx_headers = split("\t",$header);
-    
-    my $stats = <TAB>; chomp $stats;
-	my @idx_stats = split("\t",$stats);
-
-    for(my $i=0; $i<=$#idx_headers;$i++){
-        $stats{$idx_headers[$i]}=$idx_stats[$i];
-    }
-    close TAB;
-    return(%stats);
+sub parse_pbmm2log {
+    my ($log) = (@_);
+    my $total_mapped = 0;
+    my $mapped_reads = `grep "Mapped Reads" $log`;
+    chomp $mapped_reads;
+    my @mapped_reads = split(" ",$mapped_reads);
+    $total_mapped = $mapped_reads[-1];
+    return $total_mapped;
 }
 
 sub parse_seqkit {

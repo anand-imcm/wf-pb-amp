@@ -11,7 +11,7 @@ task report {
         File variant_summary
         File variant_on_target_summary
         File raw_hifi_reads_fastq_stats
-        File raw_hifi_to_reference_alignment_idxstat
+        File raw_hifi_to_reference_alignment_log
         File raw_hifi_to_reference_alignment_pass_variants_annotated_summary
         File raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_summary
         String file_label
@@ -32,7 +32,7 @@ task report {
         
         perl /scripts/deepvariant_report.pl \
             --fastq ~{raw_hifi_reads_fastq_stats} \
-            --idxstat ~{raw_hifi_to_reference_alignment_idxstat} \
+            --pbmmlog ~{raw_hifi_to_reference_alignment_log} \
             --allVariants ~{raw_hifi_to_reference_alignment_pass_variants_annotated_summary} \
             --onTargetVariants ~{raw_hifi_to_reference_alignment_ontarget_pass_variants_annotated_summary} \
             --prefix ~{file_label}
