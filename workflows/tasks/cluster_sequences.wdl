@@ -21,14 +21,16 @@ task clusterReads {
         hifireads_file_base=$(basename ~{hifi_reads_fastq_gz} .fastq.gz)
         
         ln -s ~{guide_seq} pbaa_guide.fasta
-        
+
         samtools faidx pbaa_guide.fasta -o pbaa_guide.fasta.fai
 
         gunzip -c ~{hifi_reads_fastq_gz} > ${hifireads_file_base}.fastq
 
-        if [[ ~{subset} -gt 0 ]]
+        if [[ ~{subset} -gt 0 && ~{subset} -lt 100 ]]
         then
-            seqtk sample ${hifireads_file_base}.fastq ~{subset} > ~{file_label}.hifi_reads.fastq
+            total_reads=$(awk '{s++}END{print s/4}' ${hifireads_file_base}.fastq)
+            desired_percent_reads=$(awk -v total=$total_reads -v percent=~{subset} 'BEGIN{printf "%.0f", total*percent/100}')
+            seqtk sample ${hifireads_file_base}.fastq ${desired_percent_reads} > ~{file_label}.hifi_reads.fastq
         else
             mv ${hifireads_file_base}.fastq ~{file_label}.hifi_reads.fastq
         fi
