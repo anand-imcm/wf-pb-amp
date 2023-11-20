@@ -26,6 +26,7 @@ workflow main {
         File target_bed
         File lima_report
         String prefix
+        Int subset = 0
     }
 
     parameter_meta {
@@ -41,7 +42,7 @@ workflow main {
     }
 
     call generate_consensus.clusterReads {
-        input: guide_seq = guide_fasta, hifi_reads_fastq_gz = reads_fastq_gz, file_label = prefix, docker = container_src
+        input: guide_seq = guide_fasta, hifi_reads_fastq_gz = reads_fastq_gz, file_label = prefix, subset = subset, docker = container_src
     }
 
     call align_consensus_reads.alignConsensus {
@@ -65,7 +66,7 @@ workflow main {
     }
 
     call align_hifi_reads.HifiReadsAlign {
-        input: hifi_reads_fastq_gz = reads_fastq_gz, pbmm2_index = genome_index_pbmm, file_label = prefix, docker = container_src
+        input: hifi_reads_fastq_gz = reads_fastq_gz, pbmm2_index = genome_index_pbmm, file_label = prefix, subset = subset, docker = container_src
     }
 
     call hifi_reads_variant_call_dv.HifiReadsVarCallDV {

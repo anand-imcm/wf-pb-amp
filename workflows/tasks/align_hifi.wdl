@@ -7,6 +7,7 @@ task HifiReadsAlign {
         File hifi_reads_fastq_gz
         File pbmm2_index
         String file_label
+        Int subset
         String docker
     }  
 
@@ -21,7 +22,12 @@ task HifiReadsAlign {
 
         gunzip -c ~{hifi_reads_fastq_gz} > ${hifireads_file_base}.fastq
 
-        mv ${hifireads_file_base}.fastq ~{file_label}.hifi_reads.fastq
+        if [[ ~{subset} -gt 0 ]]
+        then
+            seqtk sample ${hifireads_file_base}.fastq ~{subset} > ~{file_label}.hifi_reads.fastq
+        else
+            mv ${hifireads_file_base}.fastq ~{file_label}.hifi_reads.fastq
+        fi
         
         samtools faidx --fastq ~{file_label}.hifi_reads.fastq
 

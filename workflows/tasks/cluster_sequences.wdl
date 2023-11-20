@@ -9,6 +9,7 @@ task clusterReads {
         String file_label
         Int max_amplicon_size = 20000
         Float min_cluster_frequency = 0.125
+        Int subset
         String docker
     }  
 
@@ -20,12 +21,17 @@ task clusterReads {
         hifireads_file_base=$(basename ~{hifi_reads_fastq_gz} .fastq.gz)
         
         ln -s ~{guide_seq} pbaa_guide.fasta
-              
+        
         samtools faidx pbaa_guide.fasta -o pbaa_guide.fasta.fai
 
         gunzip -c ~{hifi_reads_fastq_gz} > ${hifireads_file_base}.fastq
 
-        mv ${hifireads_file_base}.fastq ~{file_label}.hifi_reads.fastq
+        if [[ ~{subset} -gt 0 ]]
+        then
+            seqtk sample ${hifireads_file_base}.fastq ~{subset} > ~{file_label}.hifi_reads.fastq
+        else
+            mv ${hifireads_file_base}.fastq ~{file_label}.hifi_reads.fastq
+        fi
         
         samtools faidx --fastq ~{file_label}.hifi_reads.fastq
         
